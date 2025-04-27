@@ -1,0 +1,548 @@
+-- Bảng khóa với thời gian hiệu lực
+local keys = {
+    ["NYRICX-6HW8-8LGZ-ASJ3-56J3-KKKD-VKG0"] = 86400, -- 24h
+    ["NYRICX-P4T2-4QTY-EHYB-IJJR-OYCG-4L9E"] = 86400, -- 24h
+    ["NYRICX-PJ8P-O5MA-GT00-3XCZ-JMRP-DI2Q"] = 86400, -- 24h
+    ["W69qL7-4hR6EF-#hQzKp-WEEKLY-e$V$2i"] = 604800, -- 7 days
+    ["N@6z5@-WEEKLY-OmPJwi-zCBQBI-7CxPxq"] = 604800, -- 7 days
+    ["3^tuhC-f1KsWU-30PCWU-crsSXR-WEEKLY"] = 604800, -- 7 days
+    ["9262D%-WEEKLY-dmGsPO-bfRd5y-mJDMQd"] = 604800, -- 7 days
+    ["myn55q$b-obomEDeF-6H^vkVRN-MONTHLY-mU6fz$Y^"] = 2592000, -- 30 days
+    ["1qiKy7%J-yvZ&BX$P-0&5V09Di-MONTHLY-5IXmncd5"] = 2592000, -- 30 days
+    ["OKIWPRHa-0r1ADMmV-pzHrNdss-MONTHLY-RWyhX7vr"] = 2592000, -- 30 days
+    ["X^D78UH@-MONTHLY-%fEI#TxO-4jBPtBC^-Fx@s3shg"] = 2592000, -- 30 days
+    ["BOOST-PRH3F6-221T71B-HMKBEAR"] = 0, -- Permanent
+    ["BOOST-TAM7ZR-YTVPICW-KENYC"] = 0, -- Permanent
+    ["BOOST-09S18G-ODYOC4C-KIENLONA"] = 0 -- Permanent
+}
+local getKeyLink = "https://discord.gg/7c5dZnghDe"
+
+-- Dịch vụ
+local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+
+local player = Players.LocalPlayer
+
+-- TweenInfo tái sử dụng
+local tweenInfoQuadOut = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local tweenInfoQuadIn = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+local tweenInfoBackOut = TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+local tweenInfoShake = TweenInfo.new(0.05, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
+
+-- Nhạc nền
+local bgMusic = Instance.new("Sound", SoundService)
+bgMusic.SoundId = "rbxassetid://9043887091"
+bgMusic.Volume = 0.5
+bgMusic.Looped = true
+bgMusic:Play()
+
+-- Tạo ScreenGui
+local screenGui = Instance.new("ScreenGui", game.CoreGui)
+screenGui.Name = "NyricXHubUI"
+
+-- Tạo giao diện chào mừng
+local function createWelcomeUI()
+    local welcomeFrame = Instance.new("Frame", screenGui)
+    welcomeFrame.Size = UDim2.new(1, 0, 1, 0)
+    welcomeFrame.BackgroundTransparency = 1
+
+    local welcomeTextContainer = Instance.new("Frame", welcomeFrame)
+    welcomeTextContainer.Size = UDim2.new(0, 500, 0, 100)
+    welcomeTextContainer.Position = UDim2.new(0.5, -250, 0.4, 0)
+    welcomeTextContainer.BackgroundTransparency = 1
+    welcomeTextContainer.ClipsDescendants = true
+
+    local welcomeText = Instance.new("TextLabel", welcomeTextContainer)
+    welcomeText.Size = UDim2.new(1, 0, 1, 0)
+    welcomeText.Text = "Welcome to NyricX Hub"
+    welcomeText.TextColor3 = Color3.fromRGB(255, 223, 186)
+    welcomeText.Font = Enum.Font.FredokaOne
+    welcomeText.TextStrokeTransparency = 0
+    welcomeText.BackgroundTransparency = 1
+    welcomeText.TextScaled = true
+    welcomeText.TextTransparency = 1
+
+    local welcomeTextStroke = Instance.new("UIStroke", welcomeText)
+    welcomeTextStroke.Thickness = 3
+    welcomeTextStroke.Color = Color3.fromRGB(255, 180, 0)
+
+    local gradient = Instance.new("UIGradient", welcomeText)
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 223, 186)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 180, 0))
+    })
+    gradient.Rotation = 45
+
+    local glowStroke = Instance.new("UIStroke", welcomeText)
+    glowStroke.Thickness = 8
+    glowStroke.Color = Color3.fromRGB(255, 180, 0)
+    glowStroke.Transparency = 0.7
+
+    TweenService:Create(welcomeText, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        TextTransparency = 0,
+        Rotation = 2,
+        Size = UDim2.new(1.05, 0, 1.05, 0)
+    }):Play()
+
+    TweenService:Create(glowStroke, TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Transparency = 0.3
+    }):Play()
+
+    wait(1.2)
+
+    TweenService:Create(welcomeText, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        TextTransparency = 1,
+        Rotation = -2,
+        Size = UDim2.new(0.95, 0, 0.95, 0)
+    }):Play()
+
+    TweenService:Create(glowStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        Transparency = 1
+    }):Play()
+
+    wait(0.8)
+    welcomeFrame:Destroy()
+end
+
+-- Tạo trang trí góc
+local function createCornerDecorations()
+    local positions = {
+        UDim2.new(0, 20, 0, 20),
+        UDim2.new(1, -100, 0, 20),
+        UDim2.new(0, 20, 1, -100),
+        UDim2.new(1, -100, 1, -100)
+    }
+
+    for _, pos in pairs(positions) do
+        local icon = Instance.new("ImageLabel", screenGui)
+        icon.Size = UDim2.new(0, 80, 0, 80)
+        icon.Position = pos
+        icon.BackgroundTransparency = 1
+        icon.Image = "rbxassetid://10994610552"
+        icon.ImageTransparency = 0.4
+        icon.Rotation = math.random(0, 360)
+    end
+end
+
+-- Hiệu ứng pháo hoa
+local function createFirework()
+    for i = 1, 30 do
+        local star = Instance.new("ImageLabel", screenGui)
+        star.Size = UDim2.new(0, math.random(15, 30), 0, math.random(15, 30))
+        star.Position = UDim2.new(math.random(), 0, math.random(), 0)
+        star.Image = "rbxassetid://7712218325"
+        star.BackgroundTransparency = 1
+        star.ImageTransparency = 0.2
+        star.ImageColor3 = Color3.fromRGB(math.random(150, 255), math.random(100, 255), math.random(100, 255))
+
+        TweenService:Create(star, TweenInfo.new(1, Enum.EasingStyle.Exponential), {
+            Position = UDim2.new(math.random(), 0, math.random(), 0),
+            ImageTransparency = 1
+        }):Play()
+
+        wait(0.02)
+        star:Destroy()
+    end
+end
+
+-- Tải giao diện chính
+local function loadMainHubUI()
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/xyrixreal/NyricXHub/refs/heads/main/NyricXHub"))()
+    end)
+    if not success then
+        warn("Failed to load NyricX Hub: " .. err)
+    end
+end
+
+-- Lưu khóa
+local function saveKey(key, duration)
+    local keyData = {
+        key = key,
+        timestamp = os.time(),
+        duration = duration
+    }
+    pcall(function()
+        writefile("NyricXKey.txt", HttpService:JSONEncode(keyData))
+    end)
+end
+
+-- Kiểm tra khóa hợp lệ
+local function checkKeyValidity()
+    if isfile("NyricXKey.txt") then
+        local success, keyData = pcall(function()
+            return HttpService:JSONDecode(readfile("NyricXKey.txt"))
+        end)
+        if success and keyData.key and keyData.timestamp and keyData.duration then
+            local currentTime = os.time()
+            local duration = keyData.duration == 0 and math.huge or keyData.duration
+            if currentTime - keyData.timestamp < duration and keys[keyData.key] then
+                print("Key valid. Loading NyricX Hub...")
+                bgMusic:Stop()
+                screenGui:Destroy()
+                loadMainHubUI()
+                return true
+            else
+                pcall(function()
+                    writefile("NyricXKey.txt", "")
+                end)
+            end
+        end
+    end
+    return false
+end
+
+-- Kiểm tra khóa từ getgenv().key
+local function checkEnvKey()
+    local envKey = getgenv().key
+    if type(envKey) == "string" and keys[envKey] then
+        saveKey(envKey, keys[envKey])
+        print("Environment key valid. Loading NyricX Hub...")
+        bgMusic:Stop()
+        screenGui:Destroy()
+        loadMainHubUI()
+        return true
+    end
+    return false
+end
+
+-- Tạo khung chính
+local function createMainFrame()
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 460, 0, 340)
+    frame.Position = UDim2.new(0.5, -230, 1, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    frame.BackgroundTransparency = 0.15
+
+    local uiCorner = Instance.new("UICorner", frame)
+    uiCorner.CornerRadius = UDim.new(0, 12)
+
+    local uiStroke = Instance.new("UIStroke", frame)
+    uiStroke.Thickness = 4
+    uiStroke.Color = Color3.fromRGB(255, 180, 0)
+
+    local uiShadow = Instance.new("UIStroke", frame)
+    uiShadow.Thickness = 6
+    uiShadow.Color = Color3.fromRGB(0, 0, 0)
+    uiShadow.Transparency = 0.8
+
+    TweenService:Create(frame, tweenInfoBackOut, {Position = UDim2.new(0.5, -230, 0.5, -170)}):Play()
+
+    local titleLabel = Instance.new("TextLabel", frame)
+    titleLabel.Size = UDim2.new(0.8, 0, 0, 60)
+    titleLabel.Position = UDim2.new(0.1, 0, 0.05, 0)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = "Key System for NyricX Hub"
+    titleLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+    titleLabel.Font = Enum.Font.FredokaOne
+    titleLabel.TextScaled = true
+
+    local textBox = Instance.new("TextBox", frame)
+    textBox.Size = UDim2.new(0, 350, 0, 60)
+    textBox.Position = UDim2.new(0.5, -175, 0.35, 0)
+    textBox.PlaceholderText = "Enter Key Here"
+    textBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+    textBox.Font = Enum.Font.GothamBold
+    textBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.Text = ""
+    textBox.TextScaled = true
+    textBox.ClipsDescendants = true
+
+    local textBoxPadding = Instance.new("UIPadding", textBox)
+    textBoxPadding.PaddingLeft = UDim.new(0, 10)
+    textBoxPadding.PaddingRight = UDim.new(0, 10)
+
+    local textBoxCorner = Instance.new("UICorner", textBox)
+    textBoxCorner.CornerRadius = UDim.new(0, 10)
+
+    local submitButton = Instance.new("TextButton", frame)
+    submitButton.Size = UDim2.new(0, 150, 0, 55)
+    submitButton.Position = UDim2.new(0.5, -165, 0.7, 0)
+    submitButton.Text = "Submit"
+    submitButton.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+    submitButton.TextSize = 22
+    submitButton.Font = Enum.Font.GothamBold
+    submitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    local submitButtonCorner = Instance.new("UICorner", submitButton)
+    submitButtonCorner.CornerRadius = UDim.new(0, 10)
+
+    submitButton.MouseEnter:Connect(function()
+        TweenService:Create(submitButton, tweenInfoQuadOut, {
+            BackgroundColor3 = Color3.fromRGB(0, 200, 0),
+            Size = UDim2.new(0, 160, 0, 60)
+        }):Play()
+    end)
+
+    submitButton.MouseLeave:Connect(function()
+        TweenService:Create(submitButton, tweenInfoQuadOut, {
+            BackgroundColor3 = Color3.fromRGB(0, 180, 0),
+            Size = UDim2.new(0, 150, 0, 55)
+        }):Play()
+    end)
+
+    local getKeyButton = Instance.new("TextButton", frame)
+    getKeyButton.Size = UDim2.new(0, 150, 0, 55)
+    getKeyButton.Position = UDim2.new(0.5, 15, 0.7, 0)
+    getKeyButton.Text = "Get Key"
+    getKeyButton.BackgroundColor3 = Color3.fromRGB(200, 80, 0)
+    getKeyButton.TextSize = 22
+    getKeyButton.Font = Enum.Font.GothamBold
+    getKeyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    local getKeyButtonCorner = Instance.new("UICorner", getKeyButton)
+    getKeyButtonCorner.CornerRadius = UDim.new(0, 10)
+
+    getKeyButton.MouseEnter:Connect(function()
+        TweenService:Create(getKeyButton, tweenInfoQuadOut, {
+            BackgroundColor3 = Color3.fromRGB(220, 90, 0),
+            Size = UDim2.new(0, 160, 0, 60)
+        }):Play()
+    end)
+
+    getKeyButton.MouseLeave:Connect(function()
+        TweenService:Create(getKeyButton, tweenInfoQuadOut, {
+            BackgroundColor3 = Color3.fromRGB(200, 80, 0),
+            Size = UDim2.new(0, 150, 0, 55)
+        }):Play()
+    end)
+
+    getKeyButton.MouseButton1Click:Connect(function()
+        setclipboard(getKeyLink)
+        getKeyButton.Text = "Copied!"
+        wait(1.5)
+        getKeyButton.Text = "Get Key"
+    end)
+
+    local closeButton = Instance.new("TextButton", frame)
+    closeButton.Size = UDim2.new(0, 40, 0, 40)
+    closeButton.Position = UDim2.new(1, -40, 0, 0)
+    closeButton.Text = "X"
+    closeButton.TextSize = 22
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+
+    local closeCorner = Instance.new("UICorner", closeButton)
+    closeCorner.CornerRadius = UDim.new(0, 8)
+
+    closeButton.MouseEnter:Connect(function()
+        TweenService:Create(closeButton, tweenInfoQuadOut, {
+            BackgroundColor3 = Color3.fromRGB(220, 0, 0),
+            Size = UDim2.new(0, 45, 0, 45)
+        }):Play()
+    end)
+
+    closeButton.MouseLeave:Connect(function()
+        TweenService:Create(closeButton, tweenInfoQuadOut, {
+            BackgroundColor3 = Color3.fromRGB(200, 0, 0),
+            Size = UDim2.new(0, 40, 0, 40)
+        }):Play()
+    end)
+
+    return frame, titleLabel, textBox, submitButton, closeButton
+end
+
+-- Tạo khung xác nhận
+local function blijktconfirmFrame()
+    local confirmFrame = Instance.new("Frame", screenGui)
+    confirmFrame.Size = UDim2.new(0, 400, 0, 200)
+    confirmFrame.Position = UDim2.new(0.5, -200, 0.5, -100)
+    confirmFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    confirmFrame.BackgroundTransparency = 0.2
+    confirmFrame.Visible = false
+
+    local confirmCorner = Instance.new("UICorner", confirmFrame)
+    confirmCorner.CornerRadius = UDim.new(0, 12)
+
+    local confirmStroke = Instance.new("UIStroke", confirmFrame)
+    confirmStroke.Thickness = 4
+    confirmStroke.Color = Color3.fromRGB(150, 150, 150)
+
+    local confirmText = Instance.new("TextLabel", confirmFrame)
+    confirmText.Size = UDim2.new(1, 0, 0.4, 0)
+    confirmText.Text = "Are you sure you want to exit?"
+    confirmText.TextSize = 22
+    confirmText.Font = Enum.Font.FredokaOne
+    confirmText.TextColor3 = Color3.fromRGB(200, 200, 200)
+    confirmText.BackgroundTransparency = 1
+    confirmText.TextScaled = true
+
+    local yesButton = Instance.new("TextButton", confirmFrame)
+    yesButton.Size = UDim2.new(0.35, 0, 0.3, 0)
+    yesButton.Position = UDim2.new(0.1, 0, 0.6, 0)
+    yesButton.Text = "Yes"
+    yesButton.Font = Enum.Font.GothamBold
+    yesButton.TextSize = 22
+    yesButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    yesButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    local yesCorner = Instance.new("UICorner", yesButton)
+    yesCorner.CornerRadius = UDim.new(0, 10)
+
+    yesButton.MouseEnter:Connect(function()
+        TweenService:Create(yesButton, tweenInfoQuadOut, {
+            BackgroundColor3 = Color3.fromRGB(0, 170, 0),
+            Size = UDim2.new(0.37, 0, 0.32, 0)
+        }):Play()
+    end)
+
+    yesButton.MouseLeave:Connect(function()
+        TweenService:Create(yesButton, tweenInfoQuadOut, {
+            BackgroundColor3 = Color3.fromRGB(0, 150, 0),
+            Size = UDim2.new(0.35, 0, 0.3, 0)
+        }):Play()
+    end)
+
+    yesButton.MouseButton1Down:Connect(function()
+        TweenService:Create(yesButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Size = UDim2.new(0.33, 0, 0.28, 0)
+        }):Play()
+    end)
+
+    yesButton.MouseButton1Up:Connect(function()
+        TweenService:Create(yesButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0.35, 0, 0.3, 0)
+        }):Play()
+    end)
+
+    local noButton = Instance.new("TextButton", confirmFrame)
+    noButton.Size = UDim2.new(0.35, 0, 0.3, 0)
+    noButton.Position = UDim2.new(0.55, 0, 0.6, 0)
+    noButton.Text = "No"
+    noButton.Font = Enum.Font.GothamBold
+    noButton.TextSize = 22
+    noButton.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+    noButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+    local noCorner = Instance.new("UICorner", noButton)
+    noCorner.CornerRadius = UDim.new(0, 10)
+
+    noButton.MouseEnter:Connect(function()
+        TweenService:Create(noButton, tweenInfoQuadOut, {
+            BackgroundColor3 = Color3.fromRGB(170, 0, 0),
+            Size = UDim2.new(0.37, 0, 0.32, 0)
+        }):Play()
+    end)
+
+    noButton.MouseLeave:Connect(function()
+        TweenService:Create(noButton, tweenInfoQuadOut, {
+            BackgroundColor3 = Color3.fromRGB(150, 0, 0),
+            Size = UDim2.new(0.35, 0, 0.3, 0)
+        }):Play()
+    end)
+
+    noButton.MouseButton1Down:Connect(function()
+        TweenService:Create(noButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Size = UDim2.new(0.33, 0, 0.28, 0)
+        }):Play()
+    end)
+
+    noButton.MouseButton1Up:Connect(function()
+        TweenService:Create(noButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0.35, 0, 0.3, 0)
+        }):Play()
+    end)
+
+    return confirmFrame, yesButton, noButton
+end
+
+-- Thực thi chính
+createWelcomeUI()
+createCornerDecorations()
+
+if checkKeyValidity() or checkEnvKey() then
+    return
+end
+
+local mainFrame, titleLabel, textBox, submitButton, closeButton = createMainFrame()
+local confirmFrame, yesButton, noButton = createConfirmFrame()
+
+local function showConfirm()
+    confirmFrame.Visible = true
+    mainFrame.Visible = false
+    TweenService:Create(confirmFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundTransparency = 0.2,
+        Size = UDim2.new(0, 420, 0, 210)
+    }):Play()
+end
+
+closeButton.MouseButton1Click:Connect(showConfirm)
+
+yesButton.MouseButton1Click:Connect(function()
+    TweenService:Create(confirmFrame, tweenInfoQuadIn, {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 380, 0, 190)
+    }):Play()
+    wait(0.3)
+    screenGui:Destroy()
+    bgMusic:Stop()
+end)
+
+noButton.MouseButton1Click:Connect(function()
+    TweenService:Create(confirmFrame, tweenInfoQuadIn, {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 380, 0, 190)
+    }):Play()
+    wait(0.3)
+    confirmFrame.Visible = false
+    mainFrame.Visible = true
+end)
+
+local function submitKey()
+    local inputKey = textBox.Text:match("^%s*(.-)%s*$") -- Loại bỏ khoảng trắng
+    if inputKey == "" then
+        titleLabel.Text = "Please enter a key!"
+        titleLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+        wait(1.5)
+        titleLabel.Text = "Key System for NyricX Hub"
+        titleLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+        return
+    end
+
+    if keys[inputKey] then
+        titleLabel.Text = "Key Verified! Starting NyricX Hub..."
+        titleLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
+
+        saveKey(inputKey, keys[inputKey])
+
+        TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(0, 480, 0, 360)
+        }):Play()
+
+        wait(0.5)
+        mainFrame.Visible = false
+        createFirework()
+
+        print("Key valid. Loading NyricX Hub...")
+        bgMusic:Stop()
+        wait(0.5)
+        screenGui:Destroy()
+        loadMainHubUI()
+    else
+        titleLabel.Text = "Invalid Key! Try Again."
+        titleLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+
+        for i = 1, 4 do
+            TweenService:Create(mainFrame, tweenInfoShake, {
+                Position = UDim2.new(0.5, -230 + math.random(-5, 5), 0.5, -170)
+            }):Play()
+            wait(0.05)
+        end
+
+        wait(1.5)
+        titleLabel.Text = "Key System for NyricX Hub"
+        titleLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+    end
+end
+
+submitButton.MouseButton1Click:Connect(submitKey)
+
+textBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        submitKey()
+    end
+end)
