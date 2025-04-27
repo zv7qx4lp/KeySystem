@@ -1,26 +1,48 @@
--- Bảng khóa theo loại
+-- Bảng khóa theo loại (chỉ liệt kê key, script sẽ tự gán duration)
 local key24h = {
-    ["NYRICX-6HW8-8LGZ-ASJ3-56J3-KKKD-VKG0"] = 86400, -- 24h
-    ["NYRICX-P4T2-4QTY-EHYB-IJJR-OYCG-4L9E"] = 86400, -- 24h
-    ["NYRICX-PJ8P-O5MA-GT00-3XCZ-JMRP-DI2Q"] = 86400 -- 24h
+    "NYRICX-6HW8-8LGZ-ASJ3-56J3-KKKD-VKG0",
+    "NYRICX-P4T2-4QTY-EHYB-IJJR-OYCG-4L9E",
+    "NYRICX-PJ8P-O5MA-GT00-3XCZ-JMRP-DI2Q"
 }
 local keyweek = {
-    ["W69qL7-4hR6EF-#hQzKp-WEEKLY-e$V$2i"] = 604800, -- 7 days
-    ["N@6z5@-WEEKLY-OmPJwi-zCBQBI-7CxPxq"] = 604800, -- 7 days
-    ["3^tuhC-f1KsWU-30PCWU-crsSXR-WEEKLY"] = 604800, -- 7 days
-    ["9262D%-WEEKLY-dmGsPO-bfRd5y-mJDMQd"] = 604800 -- 7 days
+    "W69qL7-4hR6EF-#hQzKp-WEEKLY-e$V$2i",
+    "N@6z5@-WEEKLY-OmPJwi-zCBQBI-7CxPxq",
+    "3^tuhC-f1KsWU-30PCWU-crsSXR-WEEKLY",
+    "9262D%-WEEKLY-dmGsPO-bfRd5y-mJDMQd"
 }
 local keymonth = {
-    ["myn55q$b-obomEDeF-6H^vkVRN-MONTHLY-mU6fz$Y^"] = 2592000, -- 30 days
-    ["1qiKy7%J-yvZ&BX$P-0&5V09Di-MONTHLY-5IXmncd5"] = 2592000, -- 30 days
-    ["OKIWPRHa-0r1ADMmV-pzHrNdss-MONTHLY-RWyhX7vr"] = 2592000, -- 30 days
-    ["X^D78UH@-MONTHLY-%fEI#TxO-4jBPtBC^-Fx@s3shg"] = 2592000 -- 30 days
+    "myn55q$b-obomEDeF-6H^vkVRN-MONTHLY-mU6fz$Y^",
+    "1qiKy7%J-yvZ&BX$P-0&5V09Di-MONTHLY-5IXmncd5",
+    "OKIWPRHa-0r1ADMmV-pzHrNdss-MONTHLY-RWyhX7vr",
+    "X^D78UH@-MONTHLY-%fEI#TxO-4jBPtBC^-Fx@s3shg"
 }
 local keyboost = {
-    ["BOOST-PRH3F6-221T71B-HMKBEAR"] = 0, -- Permanent
-    ["BOOST-TAM7ZR-YTVPICW-KENYC"] = 0, -- Permanent
-    ["BOOST-09S18G-ODYOC4C-KIENLONA"] = 0 -- Permanent
+    "BOOST-PRH3F6-221T71B-HMKBEAR",
+    "BOOST-TAM7ZR-YTVPICW-KENYC",
+    "BOOST-09S18G-ODYOC4C-KIENLONA"
 }
+
+-- Ánh xạ key với duration
+local key24hMap = {}
+for _, key in ipairs(key24h) do
+    key24hMap[key] = 86400 -- 24h
+end
+
+local keyweekMap = {}
+for _, key in ipairs(keyweek) do
+    keyweekMap[key] = 604800 -- 7 days
+end
+
+local keymonthMap = {}
+for _, key in ipairs(keymonth) do
+    keymonthMap[key] = 2592000 -- 30 days
+end
+
+local keyboostMap = {}
+for _, key in ipairs(keyboost) do
+    keyboostMap[key] = 0 -- Permanent
+end
+
 local getKeyLink = "https://discord.gg/7c5dZnghDe"
 
 -- Dịch vụ
@@ -155,11 +177,33 @@ end
 
 -- Tải giao diện chính
 local function loadMainHubUI()
-    local success, err = pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/xyrixreal/NyricXHub/refs/heads/main/NyricXHub"))()
+    local success, result = pcall(function()
+        local url = "https://raw.githubusercontent.com/xyrixreal/NyricXHub/refs/heads/main/NyricXHub"
+        local scriptContent = game:HttpGet(url)
+        if not scriptContent or scriptContent == "" then
+            error("Failed to fetch script content from " .. url)
+        end
+        local loadedFunction = loadstring(scriptContent)
+        if not loadedFunction then
+            error("Failed to compile script from " .. url)
+        end
+        return loadedFunction()
     end)
     if not success then
-        warn("Failed to load NyricX Hub: " .. err)
+        warn("Failed to load NyricX Hub: " .. tostring(result))
+        -- Hiển thị thông báo lỗi trên UI nếu cần
+        if screenGui and screenGui:FindFirstChild("MainFrame") then
+            local mainFrame = screenGui.MainFrame
+            local titleLabel = mainFrame:FindFirstChild("TitleLabel")
+            if titleLabel then
+                titleLabel.Text = "Error: Failed to load NyricX Hub"
+                titleLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+            end
+        end
+    elseif result then
+        print("Successfully loaded NyricX Hub")
+    else
+        warn("NyricX Hub loaded but returned no value")
     end
 end
 
@@ -184,19 +228,7 @@ local function checkKeyValidity()
         if success and keyData.key and keyData.timestamp and keyData.duration then
             local currentTime = os.time()
             local duration = keyData.duration == 0 and math.huge or keyData.duration
-            local isValid = false
-            for k, v in pairs(key24h) do
-                if keyData.key == k then isValid = true break end
-            end
-            for k, v in pairs(keyweek) do
-                if keyData.key == k then isValid = true break end
-            end
-            for k, v in pairs(keymonth) do
-                if keyData.key == k then isValid = true break end
-            end
-            for k, v in pairs(keyboost) do
-                if keyData.key == k then isValid = true break end
-            end
+            local isValid = key24hMap[keyData.key] or keyweekMap[keyData.key] or keymonthMap[keyData.key] or keyboostMap[keyData.key]
             if isValid and currentTime - keyData.timestamp < duration then
                 print("Key valid. Loading NyricX Hub...")
                 bgMusic:Stop()
@@ -216,26 +248,24 @@ end
 -- Kiểm tra khóa từ getgenv()
 local function checkEnvKey()
     local envKeys = {
-        { var = getgenv().key, tables = {key24h, keyweek, keymonth, keyboost} },
-        { var = getgenv().key24h, tables = {key24h} },
-        { var = getgenv().keyweek, tables = {keyweek} },
-        { var = getgenv().keymonth, tables = {keymonth} },
-        { var = getgenv().keyboost, tables = {keyboost} }
+        { var = getgenv().key, maps = {key24hMap, keyweekMap, keymonthMap, keyboostMap} },
+        { var = getgenv().key24h, maps = {key24hMap} },
+        { var = getgenv().keyweek, maps = {keyweekMap} },
+        { var = getgenv().keymonth, maps = {keymonthMap} },
+        { var = getgenv().keyboost, maps = {keyboostMap} }
     }
 
     for _, env in ipairs(envKeys) do
         local key = env.var
         if type(key) == "string" and key ~= "" then
-            for _, keyTable in ipairs(env.tables) do
-                for validKey, duration in pairs(keyTable) do
-                    if key == validKey then
-                        saveKey(key, duration)
-                        print("Environment key valid. Loading NyricX Hub...")
-                        bgMusic:Stop()
-                        screenGui:Destroy()
-                        loadMainHubUI()
-                        return true
-                    end
+            for _, keyMap in ipairs(env.maps) do
+                if keyMap[key] then
+                    saveKey(key, keyMap[key])
+                    print("Environment key valid. Loading NyricX Hub...")
+                    bgMusic:Stop()
+                    screenGui:Destroy()
+                    loadMainHubUI()
+                    return true
                 end
             end
         end
@@ -246,6 +276,7 @@ end
 -- Tạo khung chính
 local function createMainFrame()
     local frame = Instance.new("Frame", screenGui)
+    frame.Name = "MainFrame"
     frame.Size = UDim2.new(0, 460, 0, 340)
     frame.Position = UDim2.new(0.5, -230, 1, 0)
     frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
@@ -266,6 +297,7 @@ local function createMainFrame()
     TweenService:Create(frame, tweenInfoBackOut, {Position = UDim2.new(0.5, -230, 0.5, -170)}):Play()
 
     local titleLabel = Instance.new("TextLabel", frame)
+    titleLabel.Name = "TitleLabel"
     titleLabel.Size = UDim2.new(0.8, 0, 0, 60)
     titleLabel.Position = UDim2.new(0.1, 0, 0.05, 0)
     titleLabel.BackgroundTransparency = 1
@@ -537,20 +569,7 @@ local function submitKey()
         return
     end
 
-    local duration = nil
-    for k, v in pairs(key24h) do
-        if inputKey == k then duration = v break end
-    end
-    for k, v in pairs(keyweek) do
-        if inputKey == k then duration = v break end
-    end
-    for k, v in pairs(keymonth) do
-        if inputKey == k then duration = v break end
-    end
-    for k, v in pairs(keyboost) do
-        if inputKey == k then duration = v break end
-    end
-
+    local duration = key24hMap[inputKey] or keyweekMap[inputKey] or keymonthMap[inputKey] or keyboostMap[inputKey]
     if duration then
         titleLabel.Text = "Key Verified! Starting NyricX Hub..."
         titleLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
