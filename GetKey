@@ -1,16 +1,22 @@
--- Bảng khóa với thời gian hiệu lực
-local keys = {
+-- Bảng khóa theo loại
+local key24h = {
     ["NYRICX-6HW8-8LGZ-ASJ3-56J3-KKKD-VKG0"] = 86400, -- 24h
     ["NYRICX-P4T2-4QTY-EHYB-IJJR-OYCG-4L9E"] = 86400, -- 24h
-    ["NYRICX-PJ8P-O5MA-GT00-3XCZ-JMRP-DI2Q"] = 86400, -- 24h
+    ["NYRICX-PJ8P-O5MA-GT00-3XCZ-JMRP-DI2Q"] = 86400 -- 24h
+}
+local keyweek = {
     ["W69qL7-4hR6EF-#hQzKp-WEEKLY-e$V$2i"] = 604800, -- 7 days
     ["N@6z5@-WEEKLY-OmPJwi-zCBQBI-7CxPxq"] = 604800, -- 7 days
     ["3^tuhC-f1KsWU-30PCWU-crsSXR-WEEKLY"] = 604800, -- 7 days
-    ["9262D%-WEEKLY-dmGsPO-bfRd5y-mJDMQd"] = 604800, -- 7 days
+    ["9262D%-WEEKLY-dmGsPO-bfRd5y-mJDMQd"] = 604800 -- 7 days
+}
+local keymonth = {
     ["myn55q$b-obomEDeF-6H^vkVRN-MONTHLY-mU6fz$Y^"] = 2592000, -- 30 days
     ["1qiKy7%J-yvZ&BX$P-0&5V09Di-MONTHLY-5IXmncd5"] = 2592000, -- 30 days
     ["OKIWPRHa-0r1ADMmV-pzHrNdss-MONTHLY-RWyhX7vr"] = 2592000, -- 30 days
-    ["X^D78UH@-MONTHLY-%fEI#TxO-4jBPtBC^-Fx@s3shg"] = 2592000, -- 30 days
+    ["X^D78UH@-MONTHLY-%fEI#TxO-4jBPtBC^-Fx@s3shg"] = 2592000 -- 30 days
+}
+local keyboost = {
     ["BOOST-PRH3F6-221T71B-HMKBEAR"] = 0, -- Permanent
     ["BOOST-TAM7ZR-YTVPICW-KENYC"] = 0, -- Permanent
     ["BOOST-09S18G-ODYOC4C-KIENLONA"] = 0 -- Permanent
@@ -178,7 +184,20 @@ local function checkKeyValidity()
         if success and keyData.key and keyData.timestamp and keyData.duration then
             local currentTime = os.time()
             local duration = keyData.duration == 0 and math.huge or keyData.duration
-            if currentTime - keyData.timestamp < duration and keys[keyData.key] then
+            local isValid = false
+            for k, v in pairs(key24h) do
+                if keyData.key == k then isValid = true break end
+            end
+            for k, v in pairs(keyweek) do
+                if keyData.key == k then isValid = true break end
+            end
+            for k, v in pairs(keymonth) do
+                if keyData.key == k then isValid = true break end
+            end
+            for k, v in pairs(keyboost) do
+                if keyData.key == k then isValid = true break end
+            end
+            if isValid and currentTime - keyData.timestamp < duration then
                 print("Key valid. Loading NyricX Hub...")
                 bgMusic:Stop()
                 screenGui:Destroy()
@@ -194,16 +213,32 @@ local function checkKeyValidity()
     return false
 end
 
--- Kiểm tra khóa từ getgenv().key
+-- Kiểm tra khóa từ getgenv()
 local function checkEnvKey()
-    local envKey = getgenv().key
-    if type(envKey) == "string" and keys[envKey] then
-        saveKey(envKey, keys[envKey])
-        print("Environment key valid. Loading NyricX Hub...")
-        bgMusic:Stop()
-        screenGui:Destroy()
-        loadMainHubUI()
-        return true
+    local envKeys = {
+        { var = getgenv().key, tables = {key24h, keyweek, keymonth, keyboost} },
+        { var = getgenv().key24h, tables = {key24h} },
+        { var = getgenv().keyweek, tables = {keyweek} },
+        { var = getgenv().keymonth, tables = {keymonth} },
+        { var = getgenv().keyboost, tables = {keyboost} }
+    }
+
+    for _, env in ipairs(envKeys) do
+        local key = env.var
+        if type(key) == "string" and key ~= "" then
+            for _, keyTable in ipairs(env.tables) do
+                for validKey, duration in pairs(keyTable) do
+                    if key == validKey then
+                        saveKey(key, duration)
+                        print("Environment key valid. Loading NyricX Hub...")
+                        bgMusic:Stop()
+                        screenGui:Destroy()
+                        loadMainHubUI()
+                        return true
+                    end
+                end
+            end
+        end
     end
     return false
 end
@@ -321,7 +356,7 @@ local function createMainFrame()
     closeButton.Size = UDim2.new(0, 40, 0, 40)
     closeButton.Position = UDim2.new(1, -40, 0, 0)
     closeButton.Text = "X"
-    closeButton.TextSize = 22
+    closeButton.TextSize = 22 -- Vì
     closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     closeButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 
@@ -346,7 +381,7 @@ local function createMainFrame()
 end
 
 -- Tạo khung xác nhận
-local function blijktconfirmFrame()
+local function createConfirmFrame()
     local confirmFrame = Instance.new("Frame", screenGui)
     confirmFrame.Size = UDim2.new(0, 400, 0, 200)
     confirmFrame.Position = UDim2.new(0.5, -200, 0.5, -100)
@@ -502,11 +537,25 @@ local function submitKey()
         return
     end
 
-    if keys[inputKey] then
+    local duration = nil
+    for k, v in pairs(key24h) do
+        if inputKey == k then duration = v break end
+    end
+    for k, v in pairs(keyweek) do
+        if inputKey == k then duration = v break end
+    end
+    for k, v in pairs(keymonth) do
+        if inputKey == k then duration = v break end
+    end
+    for k, v in pairs(keyboost) do
+        if inputKey == k then duration = v break end
+    end
+
+    if duration then
         titleLabel.Text = "Key Verified! Starting NyricX Hub..."
         titleLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
 
-        saveKey(inputKey, keys[inputKey])
+        saveKey(inputKey, duration)
 
         TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
             BackgroundTransparency = 1,
