@@ -1,5 +1,6 @@
--- Set default key for automatic validation
+-- Set _G.getenv.key to empty string to force manual key input
 _G.getenv = _G.getenv or {}
+_G.getenv.key = ""
 
 -- Key tables with different durations
 local key24h = {
@@ -390,6 +391,37 @@ local function createMainFrame()
         TweenService:Create(getKeyButton, tweenInfoQuadOut, {BackgroundColor3 = theme.secondaryButtonHover, BackgroundTransparency = 0, Size = UDim2.new(0, 125, 0, 45)}):Play()
     end)
 
+    submitButton.MouseLeave:Connect(function()
+        TweenService:Create(submitButton, tweenInfoQuadOut, {BackgroundColor3 = theme.button, BackgroundTransparency = 0.2, Size = UDim2.new(0, 120, 0, 40)}):Play()
+    end)
+
+    submitButton.MouseButton1Down:Connect(function()
+        TweenService:Create(submitButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = UDim2.new(0, 115, 0, 35)}):Play()
+    end)
+
+    submitButton.MouseButton1Up:Connect(function()
+        TweenService:Create(submitButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 120, 0, 40)}):Play()
+    end)
+
+    local getKeyButton = Instance.new("TextButton")
+    getKeyButton.Size = UDim2.new(0, 120, 0, 40)
+    getKeyButton.Position = UDim2.new(0, 310, 0, 185)
+    getKeyButton.Text = "Get Key"
+    getKeyButton.BackgroundColor3 = theme.secondaryButton
+    getKeyButton.BackgroundTransparency = 0.2
+    getKeyButton.TextSize = 18
+    getKeyButton.Font = Enum.Font.GothamBold
+    getKeyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    getKeyButton.Parent = frame
+
+    local getKeyButtonCorner = Instance.new("UICorner")
+    getKeyButtonCorner.CornerRadius = UDim.new(0, 20)
+    getKeyButtonCorner.Parent = getKeyButton
+
+    getKeyButton.MouseEnter:Connect(function()
+        TweenService:Create(getKeyButton, tweenInfoQuadOut, {BackgroundColor3 = theme.secondaryButtonHover, BackgroundTransparency = 0, Size = UDim2.new(0, 125, 0, 45)}):Play()
+    end)
+
     getKeyButton.MouseLeave:Connect(function()
         TweenService:Create(getKeyButton, tweenInfoQuadOut, {BackgroundColor3 = theme.secondaryButton, BackgroundTransparency = 0.2, Size = UDim2.new(0, 120, 0, 40)}):Play()
     end)
@@ -450,7 +482,7 @@ local function submitKey()
             keyInfo = validKey
             break
         end
-    end
+    end)
 
     loadingSpinner.Visible = false
     rotationTween:Pause()
@@ -486,7 +518,7 @@ end
 submitButton.MouseButton1Click:Connect(submitKey)
 textBox.FocusLost:Connect(function(enterPressed) if enterPressed then submitKey() end end)
 
--- Auto-submit if _G.getenv.key is provided
+-- Auto-submit if _G.getenv.key is provided (won't trigger since _G.getenv.key is "")
 if textBox.Text ~= "" then
     submitKey()
 end
