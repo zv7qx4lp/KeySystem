@@ -4,7 +4,7 @@ _G.getenv.key = ""
 
 -- Key tables with different durations
 local key24hours = {
-    "NYRICX-9WS6-GYPZ-2CGM-TTHC-012K-CDTT",
+    "NYRICX-6HW8-8LGZ-ASJ3-56J3-KKKD-VKG0",
     "NYRICX-P4T2-4QTY-EHYB-IJJR-OYCG-4L9E",
     "NYRICX-PJ8P-O5MA-GT00-3XCZ-JMRP-DI2Q",
 }
