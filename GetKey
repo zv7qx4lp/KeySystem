@@ -3,8 +3,8 @@ _G.getenv = _G.getenv or {}
 _G.getenv.key = ""
 
 -- Key tables with different durations
-local key24h = {
-    "NYRICX-6HW8-8LGZ-ASJ3-56J3-KKKD-VKG0",
+local key24hours = {
+    "NYRICX-9WS6-GYPZ-2CGM-TTHC-012K-CDTT",
     "NYRICX-P4T2-4QTY-EHYB-IJJR-OYCG-4L9E",
     "NYRICX-PJ8P-O5MA-GT00-3XCZ-JMRP-DI2Q",
 }
@@ -43,7 +43,7 @@ local theme = {
 
 -- Combine keys with duration and type metadata
 local keys = {}
-for _, key in ipairs(key24h) do table.insert(keys, {key = key, duration = 86400, type = "24h"}) end
+for _, key in ipairs(key24hours) do table.insert(keys, {key = key, duration = 86400, type = "24h"}) end
 for _, key in ipairs(keyweek) do table.insert(keys, {key = key, duration = 604800, type = "week"}) end
 for _, key in ipairs(keymonth) do table.insert(keys, {key = key, duration = 2592000, type = "month"}) end
 for _, key in ipairs(keyboost) do table.insert(keys, {key = key, duration = 99999999999999, type = "boost"}) end
@@ -177,7 +177,7 @@ local function checkKeyValidity()
     return false
 end
 
--- Get Key UI (expanded from the hypothetical GetKey script)
+-- Get Key UI
 local function showGetKeyUI()
     local getKeyScreenGui = Instance.new("ScreenGui")
     getKeyScreenGui.Name = "GetKeyUI"
@@ -391,37 +391,6 @@ local function createMainFrame()
         TweenService:Create(getKeyButton, tweenInfoQuadOut, {BackgroundColor3 = theme.secondaryButtonHover, BackgroundTransparency = 0, Size = UDim2.new(0, 125, 0, 45)}):Play()
     end)
 
-    submitButton.MouseLeave:Connect(function()
-        TweenService:Create(submitButton, tweenInfoQuadOut, {BackgroundColor3 = theme.button, BackgroundTransparency = 0.2, Size = UDim2.new(0, 120, 0, 40)}):Play()
-    end)
-
-    submitButton.MouseButton1Down:Connect(function()
-        TweenService:Create(submitButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = UDim2.new(0, 115, 0, 35)}):Play()
-    end)
-
-    submitButton.MouseButton1Up:Connect(function()
-        TweenService:Create(submitButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 120, 0, 40)}):Play()
-    end)
-
-    local getKeyButton = Instance.new("TextButton")
-    getKeyButton.Size = UDim2.new(0, 120, 0, 40)
-    getKeyButton.Position = UDim2.new(0, 310, 0, 185)
-    getKeyButton.Text = "Get Key"
-    getKeyButton.BackgroundColor3 = theme.secondaryButton
-    getKeyButton.BackgroundTransparency = 0.2
-    getKeyButton.TextSize = 18
-    getKeyButton.Font = Enum.Font.GothamBold
-    getKeyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    getKeyButton.Parent = frame
-
-    local getKeyButtonCorner = Instance.new("UICorner")
-    getKeyButtonCorner.CornerRadius = UDim.new(0, 20)
-    getKeyButtonCorner.Parent = getKeyButton
-
-    getKeyButton.MouseEnter:Connect(function()
-        TweenService:Create(getKeyButton, tweenInfoQuadOut, {BackgroundColor3 = theme.secondaryButtonHover, BackgroundTransparency = 0, Size = UDim2.new(0, 125, 0, 45)}):Play()
-    end)
-
     getKeyButton.MouseLeave:Connect(function()
         TweenService:Create(getKeyButton, tweenInfoQuadOut, {BackgroundColor3 = theme.secondaryButton, BackgroundTransparency = 0.2, Size = UDim2.new(0, 120, 0, 40)}):Play()
     end)
@@ -482,15 +451,26 @@ local function submitKey()
             keyInfo = validKey
             break
         end
-    end)
+    end
 
     loadingSpinner.Visible = false
     rotationTween:Pause()
 
     if keyInfo then
+        local durationText
+        if keyInfo.type == "24h" then
+            durationText = "24 hours"
+        elseif keyInfo.type == "week" then
+            durationText = "1 week"
+        elseif keyInfo.type == "month" then
+            durationText = "1 month"
+        elseif keyInfo.type == "boost" then
+            durationText = "unlimited time (Boost)"
+        end
+
         statusLabel.Text = "Key Verified! (" .. keyInfo.type .. ")"
         statusLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
-        createToast("Key Verified! Starting NyricX Hub... (" .. keyInfo.type .. ")", Color3.fromRGB(0, 255, 127), 2)
+        createToast("Key Verified! Access granted for " .. durationText .. "!", Color3.fromRGB(0, 255, 127), 3)
 
         TweenService:Create(mainFrame, tweenInfoQuadIn, {BackgroundTransparency = 1, Size = UDim2.new(0, 620, 0, 320)}):Play()
         task.wait(0.5)
